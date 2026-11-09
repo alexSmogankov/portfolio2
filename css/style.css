@@ -75,6 +75,7 @@ h2 { font-size: clamp(32px, 3.4vw, 48px); }
 h1 { font-size: clamp(38px, 4.1vw, 58px); }
 h1 > span { display: block; }
 .hero-desc { color: var(--muted); max-width: 520px; font-size: 14px; line-height: 1.8; }
+.hero-desc-compact, .hero-label-compact { display: none; }
 .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
 .play-symbol { font-size: 11px; }
 .hero-secondary { display: flex; align-items: center; flex-wrap: wrap; gap: 28px; margin-top: 18px; }
@@ -364,6 +365,36 @@ h1 > span { display: block; }
   .contact-links > a { grid-template-columns: 55px 1fr 12px; gap: 8px; }
   .contact-links > a > span:nth-child(2) { font-size: 11px; }
 }
+/* В вертикальном телефоне две работы видны целиком, а вступление занимает меньше места. */
+@media (max-width: 640px) and (orientation: portrait) {
+  .hero { gap: 20px; padding-block: 24px 28px; }
+  .hero-content { gap: 16px; }
+  .hero .eyebrow { margin-bottom: 12px; }
+  .hero-heading > .eyebrow, .hero-name, .hero-secondary, .hero-desc:not(.hero-desc-compact), .hero-label-full { display: none; }
+  .hero h1 { font-size: clamp(28px, 8vw, 36px); line-height: 1.15; letter-spacing: -.045em; }
+  .hero-desc-compact { display: block; font-size: 14px; line-height: 1.6; text-wrap: balance; }
+  .hero-label-compact { display: inline; }
+  .hero-cta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
+  .hero .btn { gap: 8px; min-height: 48px; padding: 10px 12px; font-size: 12px; }
+  .showreel-stage { gap: 12px; margin-inline: 0; padding: 4px 0 12px; scroll-padding-inline: 0; }
+  .showreel-card { flex-basis: calc((100% - 12px) / 2); max-width: none; padding: 5px; border-radius: 14px; }
+  .showreel-card figcaption { min-height: 56px; gap: 4px; padding: 4px 2px 0; }
+  .showreel-card figcaption a { min-width: 44px; justify-content: center; font-size: 16px; }
+  .showreel-card figcaption a > [data-ru] { display: none; }
+  .showreel-footer { gap: 12px; }
+  .hero .showreel-footer .eyebrow { font-size: 10px; letter-spacing: .06em; }
+  .hero-facts { gap: 12px; padding-top: 16px; }
+  .hero-facts dt { font-size: 20px; }
+  .hero-facts dd { font-size: 10px; line-height: 1.4; }
+}
+
+/* На невысоких вертикальных экранах сохраняет место для видеокарточек. */
+@media (max-width: 640px) and (max-height: 700px) and (orientation: portrait) {
+  .hero { gap: 16px; padding-block: 16px 24px; }
+  .hero-content { gap: 12px; }
+  .hero-cta { margin-top: 12px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition: none !important; }
