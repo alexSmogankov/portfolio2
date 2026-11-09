@@ -1,0 +1,44 @@
+# Playable ads portfolio
+
+A buildless portfolio for Alexey Smozhankov. Open it through an HTTP server because the catalogue uses native JavaScript modules. No package installation or build step is required.
+
+## Local preview
+
+```sh
+node tools/serve.mjs
+```
+
+Open `http://127.0.0.1:8765`. Set `PORT` to select another local port.
+
+## Content ownership
+
+- `js/projects.mjs` is the single catalogue for all supplied playables, localized case copy, genre filters and PDF exports.
+- `assets/previews/` contains actual browser captures of the playables. Match each filename to the project's permanent ID.
+- `assets/*/index.html` are the supplied, unmodified game exports. Folder names are intentionally preserved.
+- `index.html`, `css/style.css` and `js/main.js` own the portfolio interface.
+- `assets/portfolio/` contains the two downloadable PDF editions.
+
+Every supplied playable has its own card, including alternate scenarios for the same game. Cases use `?project=<id>&lang=ru#case` or `lang=en`; these links open an overview without automatically loading the game. Play creates one iframe. Stop, switching projects and closing the dialog unload the previous iframe. Rotation changes the embedded viewport without restarting the game.
+
+On phones, case links open the description first. The Demo and About controls switch between the two sections without changing browser history. The play action in the description starts the game or returns to the existing session without resetting its progress.
+
+## Focused checks
+
+```sh
+node --test tests/projects.test.mjs
+node --check js/main.js
+```
+
+The checks cover catalogue completeness against the actual asset folders, preview files, combined genre/search filtering, invalid routes and links under a GitHub Pages subdirectory. For UI changes, inspect the gallery and case dialog at 320, 768, 1024 and 1440 pixels. Exercise play, restart, rotation, expansion, stop, project selection, Escape, browser history and both languages.
+
+## Refresh the PDFs
+
+```sh
+python tools/export-portfolio.py
+```
+
+Requires Python 3 with ReportLab and Node.js. The exporter reads the same catalogue as the website and uses Segoe UI on Windows or DejaVu Sans on Linux. `PORTFOLIO_FONT_DIR` can point to a directory containing `segoeui.ttf` and `segoeuib.ttf`. Render and visually inspect the resulting PDFs after changing copy or previews.
+
+## Static hosting
+
+Serve this directory as static files with `.mjs` mapped to JavaScript. Keep the relative asset structure. No application server is required for deployment.
