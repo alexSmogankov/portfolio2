@@ -1,4 +1,4 @@
-import { projects, categories, findProject, filterProjects, readRoute, buildProjectUrl } from './projects.mjs';
+import { projects, categories, findProject, filterProjects, readRoute, buildProjectUrl, pickShowreelProjects } from './projects.mjs';
 
 const ui = {
   grid: document.getElementById('projectsGrid'),
@@ -40,10 +40,13 @@ const ui = {
   rotate: document.getElementById('demoRotate'),
   expand: document.getElementById('demoExpand'),
   stop: document.getElementById('demoStop'),
-  showreelToggle: document.getElementById('showreelToggle')
+  showreelToggle: document.getElementById('showreelToggle'),
+  showreelStage: document.getElementById('showreelStage'),
+  heroPlay: document.getElementById('heroPlay')
 };
 const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
-const videos = [...document.querySelectorAll('.showreel-video')];
+const videos = [];
+const visibleVideos = new Set();
 let savedLang = 'ru';
 try { savedLang = localStorage.getItem('lang') || 'ru'; } catch { /* Язык остаётся доступен без хранилища. */ }
 const initialRoute = readRoute(new URL(window.location.href), savedLang);
@@ -76,6 +79,30 @@ function escapeHtml(value) {
 // Собирает постоянное название работы вместе с вариантом сценария.
 function projectName(project) {
   return project.title + ' — ' + project[state.lang].variant;
+}
+
+// Создаёт случайную ленту один раз при открытии и запоминает показанные игры.
+function renderShowreel() {
+  let previousIds = [];
+  try {
+    const saved = JSON.parse(sessionStorage.getItem('showreel-projects') || '[]');
+    if (Array.isArray(saved)) previousIds = saved;
+  } catch { /* Случайная лента работает и без хранилища. */ }
+  const selected = pickShowreelProjects(previousIds);
+  try { sessionStorage.setItem('showreel-projects', JSON.stringify(selected.map(project => project.id))); }
+  catch { /* Хранилище нужно только для исключения предыдущих игр. */ }
+  ui.showreelStage.innerHTML = selected.map(project => {
+    const title = escapeHtml(project.title);
+    const href = escapeHtml(buildProjectUrl(new URL(window.location.href), project.id, state.lang));
+    const labelRu = escapeHtml('Играть: ' + project.title + ' — ' + project.ru.variant);
+    const labelEn = escapeHtml('Play: ' + project.title + ' — ' + project.en.variant);
+    const link = ' href="' + href + '" data-open-project="' + project.id + '" data-autoplay="true" data-label-ru="' + labelRu + '" data-label-en="' + labelEn + '"';
+    return '<figure class="showreel-card" role="listitem" data-project="' + project.id + '">' +
+      '<a class="showreel-screen"' + link + '><video class="showreel-video" muted loop playsinline preload="none" width="540" height="960" poster="' + project.preview + '" src="' + project.video + '" aria-hidden="true"></video></a>' +
+      '<figcaption><span>' + title + '</span><a' + link + '><span data-ru="Играть" data-en="Play">Играть</span><span aria-hidden="true">↗</span></a></figcaption></figure>';
+  }).join('');
+  videos.push(...ui.showreelStage.querySelectorAll('video'));
+  ui.heroPlay.dataset.openProject = selected[0].id;
 }
 
 // Создаёт карточку с настоящим кадром и отдельными переходами к демо и кейсу.
@@ -160,6 +187,7 @@ function applyLanguage(lang, updateUrl = false) {
   document.querySelectorAll('[data-label-ru]').forEach(element => { element.setAttribute('aria-label', state.lang === 'ru' ? element.dataset.labelRu : element.dataset.labelEn); });
   document.querySelectorAll('[data-placeholder-ru]').forEach(element => { element.placeholder = state.lang === 'ru' ? element.dataset.placeholderRu : element.dataset.placeholderEn; });
   document.querySelectorAll('[data-pdf-link]').forEach(link => { link.href = 'assets/portfolio/portfolio-' + state.lang + '.pdf'; });
+  document.querySelectorAll('.hero [data-open-project]').forEach(link => { link.href = buildProjectUrl(new URL(window.location.href), link.dataset.openProject, state.lang); });
   ui.lang.textContent = state.lang === 'ru' ? 'EN' : 'RU';
   ui.lang.setAttribute('aria-label', t('Switch to English', 'Переключить на русский'));
   try { localStorage.setItem('lang', state.lang); } catch { /* Переключение не зависит от localStorage. */ }
@@ -483,7 +511,7 @@ function handleShowreelError(error) {
 function syncShowreelPlayback() {
   const shouldPlay = !state.showreelPaused && state.heroVisible && !document.hidden && !ui.dialog.open;
   videos.forEach(video => {
-    if (shouldPlay) video.play().catch(handleShowreelError);
+    if (shouldPlay && visibleVideos.has(video)) video.play().catch(handleShowreelError);
     else video.pause();
   });
   updateShowreelToggle();
@@ -498,6 +526,15 @@ function toggleShowreel() {
 // Останавливает видео после ухода первого экрана из области просмотра.
 function handleHeroVisibility(entries) {
   state.heroVisible = entries[0].isIntersecting;
+  syncShowreelPlayback();
+}
+
+// Запускает только видимые телефоны, включая горизонтально пролистываемую ленту.
+function handleShowreelVisibility(entries) {
+  for (const entry of entries) {
+    if (entry.isIntersecting && entry.intersectionRatio >= 0.25) visibleVideos.add(entry.target);
+    else visibleVideos.delete(entry.target);
+  }
   syncShowreelPlayback();
 }
 
@@ -539,6 +576,9 @@ const demoObserver = new ResizeObserver(fitDemo);
 demoObserver.observe(ui.stage);
 const heroObserver = new IntersectionObserver(handleHeroVisibility, { threshold: 0.1 });
 heroObserver.observe(document.getElementById('hero'));
+renderShowreel();
+const showreelObserver = new IntersectionObserver(handleShowreelVisibility, { threshold: 0.25 });
+videos.forEach(video => showreelObserver.observe(video));
 applyLanguage(state.lang);
 if (initialRoute.project) selectProject(initialRoute.project.id, { updateHistory: false });
 syncShowreelPlayback();

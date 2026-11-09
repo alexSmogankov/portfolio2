@@ -14,6 +14,7 @@ Open `http://127.0.0.1:8765`. Set `PORT` to select another local port.
 
 - `js/projects.mjs` is the single catalogue for all supplied playables, localized case copy, genre filters and PDF exports.
 - `assets/previews/` contains actual browser captures of the playables. Match each filename to the project's permanent ID.
+- `assets/showreel/` contains silent gameplay clips used by the five-phone hero ribbon. Each page load samples five different games from the catalogue. When session storage is available, games shown on the previous load in that tab are excluded; changing languages keeps the current selection. Videos play only while their phones are visible and stop when a case is open or playback is paused. The ribbon scrolls horizontally on smaller screens.
 - `assets/*/index.html` are the supplied, unmodified game exports. Folder names are intentionally preserved.
 - `index.html`, `css/style.css` and `js/main.js` own the portfolio interface.
 - `assets/portfolio/` contains the two downloadable PDF editions.
@@ -28,6 +29,8 @@ On phones, case links open the description first. The Demo and About controls sw
 node --test tests/projects.test.mjs
 node --check js/main.js
 ```
+
+To check only hero selection and video availability, run `node --test --test-name-pattern showreel tests/projects.test.mjs`.
 
 The checks cover catalogue completeness against the actual asset folders, preview files, combined genre/search filtering, invalid routes and links under a GitHub Pages subdirectory. For UI changes, inspect the gallery and case dialog at 320, 768, 1024 and 1440 pixels. Exercise play, restart, rotation, expansion, stop, project selection, Escape, browser history and both languages.
 

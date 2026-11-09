@@ -115,15 +115,36 @@ const catalog = [
   }
 ];
 
+const retainedVideos = { 'railroad-020': 'railroad', 'my-aquapark': 'aquapark' };
+
 export const projects = catalog.map(project => ({
   ...project,
   src: `assets/${encodeURIComponent(project.folder)}/index.html`,
-  preview: `assets/previews/${project.id}.jpg`
+  preview: `assets/previews/${project.id}.jpg`,
+  video: `assets/showreel/${retainedVideos[project.id] || project.id}.mp4`
 }));
 
 // Находит работу по постоянному идентификатору.
 export function findProject(id) {
   return projects.find(project => project.id === id) || null;
+}
+
+// Выбирает пять разных игр и исключает игры предыдущего посещения, сохраняя каталог.
+export function pickShowreelProjects(previousIds = [], random = Math.random) {
+  const previousTitles = new Set(previousIds.map(id => findProject(id)?.title));
+  let candidates = projects.filter(project => !previousTitles.has(project.title));
+  if (new Set(candidates.map(project => project.title)).size < 5) candidates = [...projects];
+  for (let index = candidates.length - 1; index > 0; index--) {
+    const other = Math.floor(random() * (index + 1));
+    [candidates[index], candidates[other]] = [candidates[other], candidates[index]];
+  }
+  const selected = [];
+  for (const project of candidates) {
+    if (selected.some(item => item.title === project.title)) continue;
+    selected.push(project);
+    if (selected.length === 5) break;
+  }
+  return selected;
 }
 
 // Отбирает работы по жанру и поисковому запросу.

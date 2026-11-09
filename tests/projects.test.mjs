@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { projects, findProject, filterProjects, readRoute, buildProjectUrl } from '../js/projects.mjs';
+import { projects, findProject, filterProjects, readRoute, buildProjectUrl, pickShowreelProjects } from '../js/projects.mjs';
 
 // Проверяет, что ни одна предоставленная работа не потеряна в каталоге.
 test('every supplied playable is represented once and links to its real file', () => {
@@ -51,4 +51,38 @@ test('case links round trip without losing the deployment path or other paramete
   const route = readRoute(url);
   assert.equal(route.project.id, id);
   assert.equal(route.lang, 'en');
+});
+
+// Проверяет разнообразие ленты и сохранение исходного порядка каталога.
+test('showreel samples five different games without changing the catalogue', () => {
+  const order = projects.map(project => project.id);
+  const selected = pickShowreelProjects([], () => 0.4);
+  assert.equal(selected.length, 5);
+  assert.equal(new Set(selected.map(project => project.title)).size, 5);
+  assert.ok(selected.every(project => projects.includes(project)));
+  assert.deepEqual(projects.map(project => project.id), order);
+});
+
+// Проверяет смену игр после обновления страницы, включая варианты одного проекта.
+test('showreel excludes games from the previous visit and accepts unknown saved IDs', () => {
+  const previous = ['railroad-020', 'my-aquapark', 'pixel-gun', 'merge-mayor', 'kingdom-clash', 'unknown-id'];
+  const previousTitles = new Set(previous.map(id => findProject(id)?.title));
+  const selected = pickShowreelProjects(previous, () => 0.6);
+  assert.equal(selected.length, 5);
+  assert.ok(selected.every(project => !previousTitles.has(project.title)));
+});
+
+// Проверяет, что случайное число влияет на состав ленты, а не только на порядок.
+test('showreel randomness changes the selected games', () => {
+  const first = pickShowreelProjects([], () => 0).map(project => project.title).sort();
+  const second = pickShowreelProjects([], () => 0.999).map(project => project.title).sort();
+  assert.notDeepEqual(first, second);
+});
+
+// Проверяет наличие ролика для любой работы, которая может попасть в случайную ленту.
+test('showreel has a real video for every selectable project', () => {
+  for (const project of projects) {
+    assert.ok(project.video, `Missing video source: ${project.id}`);
+    assert.ok(existsSync(fileURLToPath(new URL(`../${project.video}`, import.meta.url))), `Missing video file: ${project.id}`);
+  }
 });

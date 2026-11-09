@@ -34,34 +34,29 @@
   <main>
     <section id="hero" class="hero container" aria-labelledby="heroTitle">
       <div class="hero-content">
-        <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span>PLAYABLE ADS DEVELOPER</p>
-        <p class="hero-name" data-ru="Алексей Сможанков" data-en="Alexey Smozhankov">Алексей Сможанков</p>
-        <h1 id="heroTitle"><span data-ru="Вовлекаю в игру." data-en="Draw them into play.">Вовлекаю в игру.</span><span class="accent-text" data-ru="С первого касания." data-en="From the first tap.">С первого касания.</span></h1>
-        <p class="hero-desc" data-ru="Создаю интерактивную рекламу для мобильных игр. Соединяю механику, визуал и отклик в короткий опыт, который хочется попробовать." data-en="I create interactive ads for mobile games, bringing mechanics, visuals and feedback together into a short experience worth playing.">Создаю интерактивную рекламу для мобильных игр. Соединяю механику, визуал и отклик в короткий опыт, который хочется попробовать.</p>
-        <div class="hero-cta">
-          <a class="btn btn-primary" href="?project=railroad-020#case" data-open-project="railroad-020" data-autoplay="true"><span class="play-symbol" aria-hidden="true">▶</span><span data-ru="Попробовать playable" data-en="Try a playable">Попробовать playable</span></a>
-          <a class="btn btn-outline" href="#contact"><span data-ru="Обсудить проект" data-en="Let's talk">Обсудить проект</span><span aria-hidden="true">↗</span></a>
+        <div class="hero-heading">
+          <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span>PLAYABLE ADS DEVELOPER</p>
+          <p class="hero-name" data-ru="Алексей Сможанков" data-en="Alexey Smozhankov">Алексей Сможанков</p>
+          <h1 id="heroTitle"><span data-ru="Вовлекаю в игру." data-en="Draw them into play.">Вовлекаю в игру.</span><span class="accent-text" data-ru="С первого касания." data-en="From the first tap.">С первого касания.</span></h1>
         </div>
-        <div class="hero-secondary"><a href="#portfolio" class="text-link"><span data-ru="Все работы · 21" data-en="All 21 projects">Все 21 работы</span><span aria-hidden="true">↓</span></a><a class="pdf-link" href="assets/portfolio/portfolio-ru.pdf" download data-pdf-link><span aria-hidden="true">↓</span><span data-ru="Портфолио PDF" data-en="Portfolio PDF">Портфолио PDF</span></a></div>
-        <dl class="hero-facts">
-          <div><dt>10+</dt><dd data-ru="лет в разработке" data-en="years of experience">лет в разработке</dd></div>
-          <div><dt>300+</dt><dd data-ru="созданных креативов" data-en="creatives made">созданных креативов</dd></div>
-          <div><dt>2D / 3D</dt><dd>PixiJS / Three.js</dd></div>
-        </dl>
+        <div class="hero-intro">
+          <p class="hero-desc" data-ru="Создаю интерактивную рекламу для мобильных игр. Соединяю механику, визуал и отклик в короткий опыт, который хочется попробовать." data-en="I create interactive ads for mobile games, bringing mechanics, visuals and feedback together into a short experience worth playing.">Создаю интерактивную рекламу для мобильных игр. Соединяю механику, визуал и отклик в короткий опыт, который хочется попробовать.</p>
+          <div class="hero-cta">
+            <a class="btn btn-primary" id="heroPlay" href="?project=railroad-020#case" data-open-project="railroad-020" data-autoplay="true"><span class="play-symbol" aria-hidden="true">▶</span><span data-ru="Попробовать playable" data-en="Try a playable">Попробовать playable</span></a>
+            <a class="btn btn-outline" href="#contact"><span data-ru="Обсудить проект" data-en="Let's talk">Обсудить проект</span><span aria-hidden="true">↗</span></a>
+          </div>
+          <div class="hero-secondary"><a href="#portfolio" class="text-link"><span data-ru="Все работы · 21" data-en="All 21 projects">Все 21 работы</span><span aria-hidden="true">↓</span></a><a class="pdf-link" href="assets/portfolio/portfolio-ru.pdf" download data-pdf-link><span aria-hidden="true">↓</span><span data-ru="Портфолио PDF" data-en="Portfolio PDF">Портфолио PDF</span></a></div>
+        </div>
       </div>
       <section class="hero-visual" aria-labelledby="showreelLabel">
-        <div class="showreel-stage">
-          <figure class="showreel-card showreel-card-railroad">
-            <div class="showreel-screen"><video class="showreel-video" muted loop playsinline preload="metadata" poster="assets/showreel/railroad.webp" aria-label="Railroad Empire gameplay"><source src="assets/showreel/railroad.mp4" type="video/mp4"></video></div>
-            <figcaption><span>Railroad Empire</span><a href="?project=railroad-020#case" data-open-project="railroad-020" data-autoplay="true" aria-label="Играть в Railroad Empire" data-label-ru="Играть в Railroad Empire" data-label-en="Play Railroad Empire"><span data-ru="Играть" data-en="Play">Играть</span><span aria-hidden="true">↗</span></a></figcaption>
-          </figure>
-          <figure class="showreel-card showreel-card-aquapark">
-            <div class="showreel-screen"><video class="showreel-video" muted loop playsinline preload="metadata" poster="assets/showreel/aquapark.webp" aria-label="My Aquapark gameplay"><source src="assets/showreel/aquapark.mp4" type="video/mp4"></video></div>
-            <figcaption><span>My Aquapark</span><a href="?project=my-aquapark#case" data-open-project="my-aquapark" data-autoplay="true" aria-label="Играть в My Aquapark" data-label-ru="Играть в My Aquapark" data-label-en="Play My Aquapark"><span data-ru="Играть" data-en="Play">Играть</span><span aria-hidden="true">↗</span></a></figcaption>
-          </figure>
-        </div>
+        <div class="showreel-stage" id="showreelStage" role="list" aria-label="Избранные видеопревью" data-label-ru="Избранные видеопревью" data-label-en="Selected video previews"></div>
         <div class="showreel-footer"><p class="eyebrow" id="showreelLabel">SELECTED PLAY / 2D + 3D</p><button type="button" class="showreel-toggle" id="showreelToggle"><span class="showreel-toggle-icon" aria-hidden="true">Ⅱ</span><span class="showreel-toggle-text">Пауза</span></button></div>
       </section>
+      <dl class="hero-facts">
+        <div><dt>10+</dt><dd data-ru="лет в разработке" data-en="years of experience">лет в разработке</dd></div>
+        <div><dt>300+</dt><dd data-ru="созданных креативов" data-en="creatives made">созданных креативов</dd></div>
+        <div><dt>2D / 3D</dt><dd>PixiJS / Three.js</dd></div>
+      </dl>
     </section>
 
     <section class="section portfolio" id="portfolio" aria-labelledby="portfolioTitle">
