@@ -25,7 +25,7 @@ LINE = HexColor('#d8e0dc')
 # Загружает тот же каталог, который используется на сайте.
 def load_catalog():
     module = (ROOT / 'js' / 'projects.mjs').as_uri()
-    code = f'import {{ projects, categories }} from {json.dumps(module)}; console.log(JSON.stringify({{ projects, categories }}));'
+    code = f'import {{ projects, categories, clients }} from {json.dumps(module)}; console.log(JSON.stringify({{ projects, categories, clients }}));'
     return json.loads(subprocess.check_output(['node', '--input-type=module', '-e', code], encoding='utf-8'))
 
 
@@ -53,7 +53,7 @@ def paragraph(pdf, text, x, top, width, size=9.3, color=INK, bold=False, max_hei
 
 
 # Рисует повторяемые шапку, контакты и номер страницы.
-def draw_page_frame(pdf, lang, page_number, total_pages, count):
+def draw_page_frame(pdf, lang, page_number, total_pages, count, clients):
     pdf.setFillColor(HexColor('#f7f9f6'))
     pdf.rect(0, 0, WIDTH, HEIGHT, fill=1, stroke=0)
     pdf.setFillColor(HexColor('#101315'))
@@ -61,8 +61,10 @@ def draw_page_frame(pdf, lang, page_number, total_pages, count):
     name = 'Алексей Сможанков' if lang == 'ru' else 'Alexey Smozhankov'
     paragraph(pdf, name, 42, HEIGHT - 24, 390, 22, HexColor('#f1f3ef'), True, 40)
     paragraph(pdf, 'PLAYABLE ADS DEVELOPER', 43, HEIGHT - 58, 350, 8.5, HexColor('#7de8dc'), True, 20)
-    facts = f'5 лет опыта / 300+ креативов / {count} playable / PixiJS + Three.js' if lang == 'ru' else f'5 years / 300+ creatives / {count} playables / PixiJS + Three.js'
+    facts = f'{count} демо / 2D + 3D / сцены, анимация, подбор звуков / PixiJS + Three.js + Blender' if lang == 'ru' else f'{count} demos / 2D + 3D / scenes, animation, sound selection / PixiJS + Three.js + Blender'
     paragraph(pdf, facts, 43, HEIGHT - 77, WIDTH - 85, 8, HexColor('#b8c4c5'), False, 20)
+    client_label = 'Заказчики: ' if lang == 'ru' else 'Clients: '
+    paragraph(pdf, client_label + ' / '.join(clients), 42, 85, WIDTH - 84, 7.5, MUTED, False, 16)
     pdf.setStrokeColor(LINE)
     pdf.line(42, 64, WIDTH - 42, 64)
     pdf.setFont('Portfolio', 8)
@@ -95,15 +97,47 @@ def draw_project(pdf, project, labels, lang, index, top):
     pdf.line(42, top - 190, WIDTH - 42, top - 190)
 
 
-# Экспортирует все работы в один PDF на выбранном языке.
-def export_pdf(projects, labels, lang):
+# Размещает подробный кейс с личным вкладом, решениями и настоящим кадром.
+def draw_case_study(pdf, project, labels, lang):
+    copy = project[lang]
+    width = WIDTH - 84
+    heading = 'ПОДРОБНЫЙ КЕЙС' if lang == 'ru' else 'CASE STUDY'
+    y = paragraph(pdf, f'{heading} / {labels[project["category"]][lang]} / {project["format"]}', 42, HEIGHT - 124, width, 8, ACCENT, True, 18)
+    y = paragraph(pdf, project['title'], 42, y - 16, width, 27, INK, True, 44)
+    y = paragraph(pdf, copy['focus'], 42, y - 10, width, 11, ACCENT, True, 38)
+    y = paragraph(pdf, copy['summary'], 42, y - 14, width, 10, INK, False, 46)
+    top = y - 28
+    pdf.drawImage(str(ROOT / project['preview']), 42, top - 234, width=123, height=234, preserveAspectRatio=True, anchor='n', mask='auto')
+    sections = [
+        ('Мой вклад' if lang == 'ru' else 'My contribution', copy['role']),
+        ('Задача' if lang == 'ru' else 'The challenge', copy['challenge']),
+        ('Реализация' if lang == 'ru' else 'The implementation', copy['implementation']),
+        ('Ключевое решение' if lang == 'ru' else 'The key decision', copy['decisions']),
+        ('Попробуйте в демо' if lang == 'ru' else 'Try it in the demo', copy['interaction'])
+    ]
+    y = top
+    for label, text in sections:
+        y = paragraph(pdf, label, 190, y, WIDTH - 232, 8.5, ACCENT, True, 18)
+        y = paragraph(pdf, text, 190, y - 5, WIDTH - 232, 9.3, INK, False, 100) - 16
+    if y < 100:
+        raise ValueError(f'PDF case study overflow: {project["id"]}')
+
+
+# Экспортирует три подробных кейса и полный каталог на выбранном языке.
+def export_pdf(projects, labels, clients, lang):
     target = OUTPUT / f'portfolio-{lang}.pdf'
     pdf = canvas.Canvas(str(target), pagesize=A4, pageCompression=1)
     pdf.setTitle(('Портфолио - Алексей Сможанков' if lang == 'ru' else 'Portfolio - Alexey Smozhankov'))
     pdf.setAuthor('Алексей Сможанков / Alexey Smozhankov')
-    pages = math.ceil(len(projects) / 3)
-    for page_index in range(pages):
-        draw_page_frame(pdf, lang, page_index + 1, pages, len(projects))
+    featured = [project for project in projects if project.get('featured')]
+    catalog_pages = math.ceil(len(projects) / 3)
+    pages = len(featured) + catalog_pages
+    for page_index, project in enumerate(featured):
+        draw_page_frame(pdf, lang, page_index + 1, pages, len(projects), clients)
+        draw_case_study(pdf, project, labels, lang)
+        pdf.showPage()
+    for page_index in range(catalog_pages):
+        draw_page_frame(pdf, lang, len(featured) + page_index + 1, pages, len(projects), clients)
         for row, project in enumerate(projects[page_index * 3:(page_index + 1) * 3]):
             draw_project(pdf, project, labels, lang, page_index * 3 + row + 1, HEIGHT - 124 - row * 213)
         pdf.showPage()
@@ -117,7 +151,7 @@ def main():
     register_fonts()
     OUTPUT.mkdir(parents=True, exist_ok=True)
     for lang in ['ru', 'en']:
-        export_pdf(data['projects'], data['categories'], lang)
+        export_pdf(data['projects'], data['categories'], data['clients'], lang)
 
 
 if __name__ == '__main__':

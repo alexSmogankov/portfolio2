@@ -1,7 +1,9 @@
-import { projects, categories, findProject, filterProjects, readRoute, buildProjectUrl, pickShowreelProjects } from './projects.mjs';
+import { projects, categories, clients, findProject, filterProjects, readRoute, buildProjectUrl, pickShowreelProjects } from './projects.mjs';
 
 const ui = {
   grid: document.getElementById('projectsGrid'),
+  featured: document.getElementById('featuredGrid'),
+  clients: document.getElementById('clientList'),
   filters: document.getElementById('portfolioFilters'),
   search: document.getElementById('projectSearch'),
   count: document.getElementById('projectCount'),
@@ -21,8 +23,12 @@ const ui = {
   title: document.getElementById('caseTitle'),
   variant: document.getElementById('caseVariant'),
   summary: document.getElementById('caseSummary'),
+  role: document.getElementById('caseRole'),
+  roleRow: document.getElementById('caseRoleRow'),
   challenge: document.getElementById('caseChallenge'),
   implementation: document.getElementById('caseImplementation'),
+  decisions: document.getElementById('caseDecisions'),
+  decisionsRow: document.getElementById('caseDecisionsRow'),
   interaction: document.getElementById('caseInteraction'),
   tags: document.getElementById('caseTags'),
   permalink: document.getElementById('casePermalink'),
@@ -130,6 +136,17 @@ function renderGallery() {
   ui.empty.hidden = visible.length !== 0;
 }
 
+// Выделяет три подробных кейса и ведёт к описанию без автоматического запуска игры.
+function renderFeaturedCases() {
+  ui.featured.innerHTML = projects.filter(project => project.featured).map(project => {
+    const copy = project[state.lang];
+    const href = escapeHtml(buildProjectUrl(new URL(window.location.href), project.id, state.lang));
+    return '<article class="featured-card"><p class="eyebrow">' + escapeHtml(categories[project.category][state.lang] + ' / ' + project.format) + '</p>' +
+      '<h3>' + escapeHtml(project.title) + '</h3><p class="featured-focus">' + escapeHtml(copy.focus) + '</p>' +
+      '<a class="text-link" href="' + href + '" data-open-project="' + project.id + '" aria-label="' + t('Разобрать кейс: ', 'Explore case: ') + escapeHtml(project.title) + '">' + t('Разобрать кейс', 'Explore case') + '<span aria-hidden="true">↗</span></a></article>';
+  }).join('');
+}
+
 // Создаёт жанровые фильтры с количеством реальных проектов.
 function renderFilters() {
   ui.filters.innerHTML = Object.entries(categories).map(([id, label]) => {
@@ -163,8 +180,12 @@ function renderCase() {
   ui.title.textContent = project.title;
   ui.variant.textContent = copy.variant;
   ui.summary.textContent = copy.summary;
+  ui.role.textContent = copy.role || '';
+  ui.roleRow.hidden = !copy.role;
   ui.challenge.textContent = copy.challenge;
   ui.implementation.textContent = copy.implementation;
+  ui.decisions.textContent = copy.decisions || '';
+  ui.decisionsRow.hidden = !copy.decisions;
   ui.interaction.textContent = copy.interaction;
   ui.position.textContent = String(projects.indexOf(project) + 1).padStart(2, '0') + ' / ' + projects.length;
   ui.tags.innerHTML = '<span>' + categories[project.category][state.lang] + '</span><span>' + project.format + '</span><span>PLAYABLE AD</span>';
@@ -182,7 +203,7 @@ function applyLanguage(lang, updateUrl = false) {
   state.lang = lang === 'en' ? 'en' : 'ru';
   document.documentElement.lang = state.lang;
   document.title = t('Алексей Сможанков — Playable Ads Developer', 'Alexey Smozhankov — Playable Ads Developer');
-  document.querySelector('meta[name="description"]').content = t('Алексей Сможанков — разработчик playable ads. 21 интерактивная работа: игровые механики, 2D и 3D, демо и кейсы.', 'Alexey Smozhankov — Playable Ads Developer. 21 interactive projects: game mechanics, 2D and 3D, live demos and cases.');
+  document.querySelector('meta[name="description"]').content = t('Алексей Сможанков — разработчик 2D и 3D playable ads. PixiJS, Three.js, Blender: игровые механики, сцены, анимация и звук. 21 демо для 16 игр и подробные кейсы.', 'Alexey Smozhankov — 2D and 3D Playable Ads Developer. PixiJS, Three.js, Blender: game mechanics, scenes, animation and sound. 21 demos for 16 games and detailed case studies.');
   document.querySelectorAll('[data-ru]').forEach(element => { element.textContent = element.dataset[state.lang]; });
   document.querySelectorAll('[data-label-ru]').forEach(element => { element.setAttribute('aria-label', state.lang === 'ru' ? element.dataset.labelRu : element.dataset.labelEn); });
   document.querySelectorAll('[data-placeholder-ru]').forEach(element => { element.placeholder = state.lang === 'ru' ? element.dataset.placeholderRu : element.dataset.placeholderEn; });
@@ -198,6 +219,7 @@ function applyLanguage(lang, updateUrl = false) {
   }
   renderFilters();
   renderGallery();
+  renderFeaturedCases();
   renderProjectSelector();
   renderCase();
   updateShowreelToggle();
@@ -577,6 +599,7 @@ demoObserver.observe(ui.stage);
 const heroObserver = new IntersectionObserver(handleHeroVisibility, { threshold: 0.1 });
 heroObserver.observe(document.getElementById('hero'));
 renderShowreel();
+ui.clients.innerHTML = clients.map(client => '<li>' + escapeHtml(client) + '</li>').join('');
 const showreelObserver = new IntersectionObserver(handleShowreelVisibility, { threshold: 0.25 });
 videos.forEach(video => showreelObserver.observe(video));
 applyLanguage(state.lang);
