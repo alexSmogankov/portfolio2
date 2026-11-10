@@ -7,11 +7,34 @@ export const categories = {
   strategy: { ru: 'Стратегия', en: 'Strategy' }
 };
 
+export const clients = [
+  'AZUR Games', 'Melsoft Games', 'VIZOR Games', 'Beresnev Games',
+  'Appsulove', 'Glera Games', 'Highcore Games', 'Kefir', 'Playkot'
+];
+
 const catalog = [
   {
-    id: 'railroad-020', folder: 'RRE_play020', title: 'Railroad Empire', category: 'simulation', format: '2D / 3D',
-    ru: { variant: 'Ресурсы и маршруты', summary: 'Выбор локомотива и доставка ресурсов для развития железной дороги.', challenge: 'Уместить экономическую механику в короткую игровую сессию с понятной первой целью.', implementation: 'Выбор поездов с разными характеристиками, маршруты доставки, счётчики ресурсов и контекстное обучение.', interaction: 'Выберите локомотив и разместите его на маршруте. Следите за доставкой древесины и развитием дороги.' },
-    en: { variant: 'Resources & routes', summary: 'Choose a locomotive and deliver resources to develop a railway.', challenge: 'Turn an economy mechanic into a short session with a clear first objective.', implementation: 'Train selection with different capabilities, delivery routes, resource counters and contextual onboarding.', interaction: 'Choose a locomotive and place it on a route. Follow the timber deliveries and railway development.' }
+    id: 'railroad-020', folder: 'RRE_play020', title: 'Railroad Empire', category: 'simulation', format: '2D / 3D', featured: true,
+    ru: {
+      variant: 'Ресурсы и маршруты',
+      summary: 'Выбор локомотива, доставка древесины и развитие железной дороги в одном игровом цикле.',
+      focus: 'Экономический цикл и обучение через действие.',
+      role: 'Вся реализация playable: игровая логика, UI, анимации и адаптация ассетов. Поведение сцены, обучение и игровые ощущения — мои решения.',
+      challenge: 'Уместить экономическую механику в короткую сессию. Игрок должен понять, зачем выбирать локомотив, куда его поставить и как доставка ресурса связана с развитием дороги.',
+      implementation: 'Связал выбор поездов с разными характеристиками, размещение на маршруте и доставку древесины. Счётчики ресурсов показывают прогресс, а контекстные подсказки сопровождают первые действия.',
+      decisions: 'Построил обучение вокруг первого рейса. Выбор сразу переходит в действие, а движение поезда и изменение счётчиков показывают его результат в самой сцене. Так экономическая связь раскрывается по мере игры.',
+      interaction: 'Выберите локомотив, разместите его на маршруте и проследите первый рейс. Обратите внимание на подсказки и изменение счётчика после доставки древесины.'
+    },
+    en: {
+      variant: 'Resources & routes',
+      summary: 'Choose a locomotive, deliver timber and develop a railway in one gameplay loop.',
+      focus: 'An economy loop taught through interaction.',
+      role: 'Full playable implementation: game logic, UI, animation and asset adaptation. Scene behaviour, onboarding and game feel reflect my own implementation decisions.',
+      challenge: 'Fit an economy mechanic into a short session. Players need to understand why they are choosing a locomotive, where to place it and how resource delivery contributes to railway development.',
+      implementation: 'Connected train selection, different locomotive capabilities, route placement and timber delivery. Resource counters show progress, while contextual hints guide the first interactions.',
+      decisions: 'Built onboarding around the first delivery. Selection leads straight into action; train movement and changing counters show the outcome in the scene. The economy becomes clear as the player interacts.',
+      interaction: 'Choose a locomotive, place it on a route and follow the first trip. Notice the hints and the resource counter changing after a timber delivery.'
+    }
   },
   {
     id: 'my-aquapark', folder: 'MA_play002', title: 'My Aquapark', category: 'simulation', format: '3D',
@@ -19,9 +42,27 @@ const catalog = [
     en: { variant: 'Build an aquapark', summary: 'Open attractions, welcome visitors and grow an aquapark.', challenge: 'Make the link between investment, visitor feedback and business growth easy to understand.', implementation: 'Purchasable objects in a 3D scene, visitor queues, mood feedback and step-by-step hints.', interaction: 'Open the aquapark entrance and watch the visitor flow change.' }
   },
   {
-    id: 'pixel-gun', folder: 'CG.PixelGun', title: 'Pixel Gun 3D', category: 'action', format: '3D',
-    ru: { variant: 'Прицеливание', summary: 'Шутер от первого лица с яркой воксельной сценой и движущимися целями.', challenge: 'Дать ощущение прицеливания и попадания с первого касания.', implementation: 'Камера от первого лица, движущиеся противники, оружие в кадре и обучение непосредственно в сцене.', interaction: 'Направьте прицел на противника и проверьте отклик оружия.' },
-    en: { variant: 'Aim & shoot', summary: 'A first-person shooter with a vivid voxel scene and moving targets.', challenge: 'Deliver the feel of aiming and hitting from the first touch.', implementation: 'A first-person camera, moving enemies, an on-screen weapon and in-scene onboarding.', interaction: 'Aim at an enemy and try the weapon feedback.' }
+    id: 'pixel-gun', folder: 'CG.PixelGun', title: 'Pixel Gun 3D', category: 'action', format: '3D', featured: true,
+    ru: {
+      variant: 'Прицеливание',
+      summary: 'Шутер от первого лица: наведение на движущиеся цели и отклик оружия в воксельной 3D-сцене.',
+      focus: 'Прицеливание, камера и ощущение выстрела.',
+      role: 'Вся реализация playable: управление, поведение противников, камера, интерфейс и адаптация ассетов. Анимации и игровой отклик настроены по моим решениям.',
+      challenge: 'Передать ощущение шутера через простое сенсорное управление. В насыщенной воксельной сцене игрок должен сразу увидеть цель и понять связь наведения с выстрелом.',
+      implementation: 'Связал камеру от первого лица, прицел, движущихся противников и оружие в кадре. Подсказка находится прямо в сцене, а анимация оружия и реакция целей сопровождают стрельбу.',
+      decisions: 'Собрал наведение и обратную связь в одном поле зрения. Оружие в переднем плане задаёт точку отсчёта, а движение целей позволяет почувствовать управление уже при первом контакте с демо.',
+      interaction: 'Наведите прицел на движущуюся цель. Посмотрите, как связаны движение камеры, выстрел, анимация оружия и реакция противника.'
+    },
+    en: {
+      variant: 'Aim & shoot',
+      summary: 'A first-person shooter with moving targets and weapon feedback in a voxel 3D scene.',
+      focus: 'Aiming, camera response and weapon feel.',
+      role: 'Full playable implementation: controls, enemy behaviour, camera, UI and asset adaptation. Animation and gameplay feedback were tuned through my own implementation decisions.',
+      challenge: 'Convey the feel of a shooter through simple touch controls. In a detailed voxel scene, players need to spot a target and understand how aiming leads to a shot.',
+      implementation: 'Connected a first-person camera, crosshair, moving enemies and an on-screen weapon. An in-scene hint introduces aiming, while weapon animation and target reactions provide shooting feedback.',
+      decisions: 'Kept aiming and feedback within the same view. The foreground weapon anchors the composition, while moving targets let players feel the controls from their first interaction.',
+      interaction: 'Aim at a moving target. Watch how camera movement, firing, weapon animation and the enemy response work together.'
+    }
   },
   {
     id: 'kingdom-clash', folder: 'KC_play120', title: 'Kingdom Clash', category: 'strategy', format: '3D',
@@ -34,9 +75,27 @@ const catalog = [
     en: { variant: 'Break into the base', summary: 'A survival scenario with character movement and environmental interaction.', challenge: 'Connect movement and action within a short survival encounter.', implementation: 'A virtual joystick, action buttons, an isometric camera and an abandoned-base environment.', interaction: 'Move with the joystick, approach the base and try the available actions.' }
   },
   {
-    id: 'merge-mayor', folder: 'MERGE MAYOR', title: 'Merge Mayor', category: 'puzzle', format: '2D',
-    ru: { variant: 'Объединение предметов', summary: 'Merge-головоломка: объединять предметы и освобождать поле от коробок.', challenge: 'Объяснить правило объединения одним наглядным действием.', implementation: 'Перетаскивание предметов по сетке, цепочки объединений, препятствия и подсказка первого хода.', interaction: 'Соедините одинаковые предметы. Посмотрите, как меняются предметы и освобождается поле.' },
-    en: { variant: 'Merge & clear', summary: 'A merge puzzle about combining objects and clearing boxes from a board.', challenge: 'Explain the merge rule through one clear interaction.', implementation: 'Grid-based dragging, merge chains, obstacles and a first-move hint.', interaction: 'Combine matching objects and watch the items evolve as the board clears.' }
+    id: 'merge-mayor', folder: 'MERGE MAYOR', title: 'Merge Mayor', category: 'puzzle', format: '2D', featured: true,
+    ru: {
+      variant: 'Объединение предметов',
+      summary: 'Merge-головоломка с цепочками превращений предметов и освобождением поля от коробок.',
+      focus: 'Понятный первый ход и отклик на объединение.',
+      role: 'Вся реализация playable: перетаскивание по сетке, правила объединения, состояния поля, UI и адаптация ассетов. Обучение, анимации и игровые ощущения — мои решения.',
+      challenge: 'Объяснить правило объединения через первый ход и связать его с целью уровня — убрать коробки. На одном поле должны читаться доступные предметы, препятствия и результат действия.',
+      implementation: 'Реализовал перетаскивание предметов по сетке, цепочки объединений и изменение состояния препятствий. Подсказка первого хода задаёт жест, а превращение предмета показывает результат объединения.',
+      decisions: 'Оставил обучение на самом игровом поле. Подсказка показывает конкретное действие с предметом, после которого игрок видит превращение и может повторить правило на других ячейках.',
+      interaction: 'Перетащите предмет на такой же и продолжите цепочку объединений. Обратите внимание на подсказку первого хода, превращения предметов и изменение коробок на поле.'
+    },
+    en: {
+      variant: 'Merge & clear',
+      summary: 'A merge puzzle with evolving items and a board to clear of boxes.',
+      focus: 'A clear first move and tangible merge feedback.',
+      role: 'Full playable implementation: grid dragging, merge rules, board states, UI and asset adaptation. Onboarding, animation and game feel reflect my own implementation decisions.',
+      challenge: 'Teach merging through the first move and connect it to the objective: clearing boxes. Available items, obstacles and the outcome of an action all need to read clearly on one board.',
+      implementation: 'Implemented grid-based dragging, merge chains and obstacle state changes. The first-move hint introduces the gesture, while each item transformation shows the outcome of a merge.',
+      decisions: 'Kept onboarding on the board itself. The hint demonstrates a specific interaction; the resulting transformation gives players a rule they can then apply to other cells.',
+      interaction: 'Drag an item onto a matching one and continue the merge chain. Notice the first-move hint, item transformations and changes to the boxes on the board.'
+    }
   },
   {
     id: 'mistland-saga', folder: 'MISLAND SAGA', title: 'Mistland Saga', category: 'adventure', format: '3D',
