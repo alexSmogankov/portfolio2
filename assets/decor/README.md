@@ -1,0 +1,9 @@
+# Playground environment
+
+`playground.webp` is a decorative website background, not a capture of a portfolio project or a claim about shipped game art. The playable screenshots and videos remain the supplied real examples.
+
+Generated with the built-in `image_gen` tool on 2026-11-09, then encoded as WebP at the original 1536 × 1024 resolution (quality 86). It has no runtime dependencies. The inline craft illustration is code-native SVG.
+
+## Generation prompt
+
+Use case: stylized-concept. Create one wide 3D environment background for a professional playable-ads developer portfolio. Aspect ratio landscape 3:2, high resolution. This is decorative surrounding scenery for a web gallery, NOT a fake screenshot of a game. Premium handcrafted miniature game-world diorama, matte clay and crisp low-poly geometry, dark deep petrol-black studio background (#101817), sage teal miniature pine trees and faceted rocks on small island platforms along the far left and right edges, a tiny curving copper railway track on the left, a few floating cream cubes, a small coral-orange flag on the right, elegant concentric thin rings and fine floor grid as a subtle game-engine workspace. Camera nearly front facing slightly above, atmospheric studio lighting with soft teal rim light and warm ivory keylight, sophisticated physically plausible shadows, tasteful material texture. Composition is crucial: center 65 percent of the image and upper quarter remain almost empty dark flat negative space for five real video screens and overlaid large typography. All substantial objects hug the extreme sides and bottom corners, no central focal object. Low set horizon near lower third. Create a visually rich but restrained game-development workshop atmosphere, clean polished art direction, architectural miniature photography quality. No text, no letters, no logos, no phones, no devices, no characters, no weapons, no UI, no watermark, no neon purple, no busy stars, no sci-fi tunnel.

@@ -12,16 +12,19 @@ Open `http://127.0.0.1:8765`. Set `PORT` to select another local port.
 
 ## Content ownership
 
-- `js/projects.mjs` is the single catalogue for all supplied playables, localized case copy, genre filters, client names and PDF exports. Three projects are marked `featured`; their localized `focus`, `role` and `decisions` fields supply the case-study cards and extended descriptions.
+- `js/projects.mjs` is the single catalogue for all supplied playables, localized case copy, genre filters, collaboration credits and PDF exports. Three projects are marked `featured`; their localized `focus`, `role` and `decisions` fields supply the case-study cards and extended descriptions.
 - `assets/previews/` contains actual browser captures of the playables. Match each filename to the project's permanent ID.
-- `assets/showreel/` contains silent gameplay clips used by the five-phone hero ribbon. Each page load samples five different games from the catalogue. When session storage is available, games shown on the previous load in that tab are excluded; changing languages keeps the current selection. Videos play only while their phones are visible and stop when a case is open or playback is paused. The ribbon scrolls horizontally on smaller screens.
+- `assets/showreel/` contains silent gameplay clips used by the five-phone hero and the three featured case studies. Each page load samples five different games for the hero. When session storage is available, games shown on the previous load in that tab are excluded; changing languages keeps the current hero selection. One visibility observer pauses offscreen previews; opening a case, switching away from the page or either pause control stops playback. Reduced-motion preferences start previews paused. Rebuilding featured copy releases the previous videos and observer targets. The hero scrolls horizontally on smaller screens.
+- `assets/decor/playground.webp` is a decorative environment, separate from the actual game captures. Its generation prompt and provenance are recorded in `assets/decor/README.md`.
 - `assets/*/index.html` are the supplied, unmodified game exports. Folder names are intentionally preserved.
 - `index.html`, `css/style.css` and `js/main.js` own the portfolio interface.
 - `assets/portfolio/` contains the two downloadable PDF editions. Each starts with three full-page case studies, followed by the complete 21-project catalogue.
 
 Every supplied playable has its own card, including alternate scenarios for the same game. Cases use `?project=<id>&lang=ru#case` or `lang=en`; these links open an overview without automatically loading the game. Play creates one iframe. Stop, switching projects and closing the dialog unload the previous iframe. Rotation changes the embedded viewport without restarting the game.
 
-On phones, case links open the description first. The Demo and About controls switch between the two sections without changing browser history. The play action in the description starts the game or returns to the existing session without resetting its progress.
+The initial collection shows eight projects. The reveal control opens all 21 and moves keyboard focus to the first newly revealed project. Genre filters and search always operate on the complete catalogue. Resetting an empty result shows every project. The expanded state survives language changes until the page is reloaded.
+
+## Presentation references
 
 ## Focused checks
 

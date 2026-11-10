@@ -9,6 +9,7 @@ const ui = {
   count: document.getElementById('projectCount'),
   empty: document.getElementById('emptyState'),
   reset: document.getElementById('resetFilters'),
+  more: document.getElementById('showAllProjects'),
   lang: document.getElementById('langToggle'),
   menu: document.getElementById('menuToggle'),
   nav: document.getElementById('mainNavigation'),
@@ -46,12 +47,12 @@ const ui = {
   rotate: document.getElementById('demoRotate'),
   expand: document.getElementById('demoExpand'),
   stop: document.getElementById('demoStop'),
-  showreelToggle: document.getElementById('showreelToggle'),
+  previewToggles: document.querySelectorAll('[data-preview-toggle]'),
   showreelStage: document.getElementById('showreelStage'),
   heroPlay: document.getElementById('heroPlay')
 };
 const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
-const videos = [];
+const videos = new Set();
 const visibleVideos = new Set();
 let savedLang = 'ru';
 try { savedLang = localStorage.getItem('lang') || 'ru'; } catch { /* Язык остаётся доступен без хранилища. */ }
@@ -60,6 +61,7 @@ const state = {
   lang: initialRoute.lang,
   category: 'all',
   query: '',
+  galleryExpanded: false,
   selected: null,
   frame: null,
   opener: null,
@@ -68,8 +70,7 @@ const state = {
   demoState: 'ready',
   loadTimer: null,
   copyTimer: null,
-  showreelPaused: motionPreference.matches,
-  heroVisible: true
+  showreelPaused: motionPreference.matches
 };
 
 // Возвращает строку интерфейса на текущем языке.
@@ -107,7 +108,7 @@ function renderShowreel() {
       '<a class="showreel-screen"' + link + '><video class="showreel-video" muted loop playsinline preload="none" width="540" height="960" poster="' + project.preview + '" src="' + project.video + '" aria-hidden="true"></video></a>' +
       '<figcaption><span>' + title + '</span><a' + link + '><span data-ru="Играть" data-en="Play">Играть</span><span aria-hidden="true">↗</span></a></figcaption></figure>';
   }).join('');
-  videos.push(...ui.showreelStage.querySelectorAll('video'));
+  ui.showreelStage.querySelectorAll('video').forEach(video => videos.add(video));
   ui.heroPlay.dataset.openProject = selected[0].id;
 }
 
@@ -115,36 +116,68 @@ function renderShowreel() {
 function cardMarkup(project) {
   const copy = project[state.lang];
   const href = escapeHtml(buildProjectUrl(new URL(window.location.href), project.id, state.lang));
-  const preview = escapeHtml(new URL(project.preview, window.location.href).href);
   const name = escapeHtml(projectName(project));
   const number = String(projects.indexOf(project) + 1).padStart(2, '0');
-  return '<article class="project-card" data-project="' + project.id + '">' +
-    '<a class="project-art" href="' + href + '" data-open-project="' + project.id + '" data-autoplay="true" style="--preview:url(' + preview + ')" aria-label="' + t('Играть: ', 'Play: ') + name + '">' +
+  return '<article class="project-card" data-project="' + project.id + '" data-category="' + project.category + '">' +
+    '<a class="project-art" href="' + href + '" data-open-project="' + project.id + '" data-autoplay="true" aria-label="' + t('Играть: ', 'Play: ') + name + '">' +
     '<img src="' + project.preview + '" width="390" height="740" loading="lazy" decoding="async" alt="' + name + '"><span class="art-open" aria-hidden="true">▶</span></a>' +
     '<div class="project-body"><div class="project-meta"><span>' + number + ' / ' + categories[project.category][state.lang] + '</span><span>' + project.format + '</span></div>' +
     '<h3><a href="' + href + '" data-open-project="' + project.id + '">' + escapeHtml(project.title) + '</a></h3>' +
-    '<p class="project-variant">' + escapeHtml(copy.variant) + '</p><p class="project-summary">' + escapeHtml(copy.summary) + '</p>' +
+    '<p class="project-variant">' + escapeHtml(copy.variant) + '</p>' +
     '<div class="project-actions"><a class="play-link" href="' + href + '" data-open-project="' + project.id + '" data-autoplay="true" aria-label="' + t('Играть: ', 'Play: ') + name + '"><span aria-hidden="true">▶</span>' + t('Играть', 'Play') + '</a>' +
     '<a class="case-link" href="' + href + '" data-open-project="' + project.id + '" aria-label="' + t('О проекте: ', 'About: ') + name + '">' + t('О проекте', 'View case') + '<span aria-hidden="true">↗</span></a></div></div></article>';
 }
 
 // Показывает результат поиска и честное количество доступных работ.
 function renderGallery() {
-  const visible = filterProjects({ category: state.category, query: state.query });
+  const matching = filterProjects({ category: state.category, query: state.query });
+  const limit = !state.galleryExpanded && state.category === 'all' && !state.query.trim();
+  const visible = limit ? matching.slice(0, 8) : matching;
   ui.grid.innerHTML = visible.map(cardMarkup).join('');
   ui.count.textContent = t('Показано: ', 'Showing: ') + visible.length + ' / ' + projects.length;
   ui.empty.hidden = visible.length !== 0;
+  ui.more.hidden = visible.length === matching.length;
+  ui.more.setAttribute('aria-expanded', String(state.galleryExpanded));
+  ui.more.textContent = t('Ещё ' + (matching.length - visible.length) + ' работ', 'Explore ' + (matching.length - visible.length) + ' more projects') + ' ↓';
 }
 
-// Выделяет три подробных кейса и ведёт к описанию без автоматического запуска игры.
+// Раскрывает оставшуюся коллекцию и переводит фокус к первой добавленной работе.
+function showAllProjects() {
+  const previousCount = ui.grid.children.length;
+  state.galleryExpanded = true;
+  renderGallery();
+  ui.grid.children[previousCount]?.querySelector('a')?.focus();
+}
+
+// Показывает три визуальных кейса и освобождает старые видео при смене языка.
 function renderFeaturedCases() {
-  ui.featured.innerHTML = projects.filter(project => project.featured).map(project => {
+  ui.featured.querySelectorAll('video').forEach(video => {
+    video.pause();
+    showreelObserver.unobserve(video);
+    visibleVideos.delete(video);
+    videos.delete(video);
+  });
+  ui.featured.innerHTML = projects.filter(project => project.featured).map((project, index) => {
     const copy = project[state.lang];
     const href = escapeHtml(buildProjectUrl(new URL(window.location.href), project.id, state.lang));
-    return '<article class="featured-card"><p class="eyebrow">' + escapeHtml(categories[project.category][state.lang] + ' / ' + project.format) + '</p>' +
-      '<h3>' + escapeHtml(project.title) + '</h3><p class="featured-focus">' + escapeHtml(copy.focus) + '</p>' +
-      '<a class="text-link" href="' + href + '" data-open-project="' + project.id + '" aria-label="' + t('Разобрать кейс: ', 'Explore case: ') + escapeHtml(project.title) + '">' + t('Разобрать кейс', 'Explore case') + '<span aria-hidden="true">↗</span></a></article>';
+    const title = escapeHtml(project.title);
+    const number = String(index + 1).padStart(2, '0');
+    return '<article class="featured-card" data-featured="' + project.id + '">' +
+      '<a class="featured-art" href="' + href + '" data-open-project="' + project.id + '" data-autoplay="true" aria-label="' + t('Играть: ', 'Play: ') + title + '">' +
+      '<span class="featured-number" aria-hidden="true">' + number + '</span><span class="featured-orbit" aria-hidden="true"></span>' +
+      '<span class="featured-format">' + project.format + '<span>PLAYABLE AD</span></span>' +
+      '<span class="featured-phone"><video muted loop playsinline preload="none" width="540" height="960" poster="' + project.preview + '" src="' + project.video + '" aria-hidden="true"></video></span>' +
+      '<span class="featured-art-cta"><span aria-hidden="true">▶</span>' + t('Войти в игру', 'Step inside') + '<span aria-hidden="true">↗</span></span></a>' +
+      '<div class="featured-copy"><p class="eyebrow">' + number + ' / ' + escapeHtml(categories[project.category][state.lang]) + '</p>' +
+      '<h3>' + title + '</h3><p class="featured-focus">' + escapeHtml(copy.focus) + '</p>' +
+      '<p class="featured-summary">' + escapeHtml(copy.summary) + '</p>' +
+      '<div class="featured-decision"><span class="eyebrow">' + t('В ДЕТАЛЯХ', 'THE CRAFT') + '</span><p>' + escapeHtml(copy.decisions) + '</p></div>' +
+      '<a class="text-link" href="' + href + '" data-open-project="' + project.id + '" aria-label="' + t('Разобрать кейс: ', 'Explore case: ') + title + '">' + t('Разобрать кейс', 'Explore case') + '<span aria-hidden="true">↗</span></a></div></article>';
   }).join('');
+  ui.featured.querySelectorAll('video').forEach(video => {
+    videos.add(video);
+    showreelObserver.observe(video);
+  });
 }
 
 // Создаёт жанровые фильтры с количеством реальных проектов.
@@ -459,6 +492,7 @@ function handleSearch() {
 function resetFilters() {
   state.category = 'all';
   state.query = '';
+  state.galleryExpanded = true;
   ui.search.value = '';
   renderFilters();
   renderGallery();
@@ -516,22 +550,24 @@ function handleDocumentKeydown(event) {
 
 // Обновляет доступный элемент управления существующими видеопревью.
 function updateShowreelToggle() {
-  ui.showreelToggle.querySelector('.showreel-toggle-icon').textContent = state.showreelPaused ? '▶' : 'Ⅱ';
-  ui.showreelToggle.querySelector('.showreel-toggle-text').textContent = state.showreelPaused ? t('Воспроизвести', 'Play') : t('Пауза', 'Pause');
-  ui.showreelToggle.setAttribute('aria-label', state.showreelPaused ? t('Воспроизвести шоурил', 'Play showreel') : t('Приостановить шоурил', 'Pause showreel'));
+  ui.previewToggles.forEach(button => {
+    button.querySelector('.showreel-toggle-icon').textContent = state.showreelPaused ? '▶' : 'Ⅱ';
+    button.querySelector('.showreel-toggle-text').textContent = state.showreelPaused ? t('Воспроизвести', 'Play') : t('Пауза', 'Pause');
+    button.setAttribute('aria-label', state.showreelPaused ? t('Воспроизвести видеопревью', 'Play previews') : t('Приостановить видеопревью', 'Pause previews'));
+  });
 }
 
 // Сохраняет ручной запуск, если браузер запрещает автоматическое видео.
 function handleShowreelError(error) {
   if (error.name === 'NotAllowedError' || error.name === 'NotSupportedError') {
     state.showreelPaused = true;
-    updateShowreelToggle();
+    syncShowreelPlayback();
   }
 }
 
-// Проигрывает шоурил только на видимом первом экране без открытой игры.
+// Проигрывает только видимые превью, останавливая их на паузе и при открытой игре.
 function syncShowreelPlayback() {
-  const shouldPlay = !state.showreelPaused && state.heroVisible && !document.hidden && !ui.dialog.open;
+  const shouldPlay = !state.showreelPaused && !document.hidden && !ui.dialog.open;
   videos.forEach(video => {
     if (shouldPlay && visibleVideos.has(video)) video.play().catch(handleShowreelError);
     else video.pause();
@@ -542,12 +578,6 @@ function syncShowreelPlayback() {
 // Сохраняет выбор паузы при открытии и закрытии кейсов.
 function toggleShowreel() {
   state.showreelPaused = !state.showreelPaused;
-  syncShowreelPlayback();
-}
-
-// Останавливает видео после ухода первого экрана из области просмотра.
-function handleHeroVisibility(entries) {
-  state.heroVisible = entries[0].isIntersecting;
   syncShowreelPlayback();
 }
 
@@ -572,6 +602,7 @@ document.addEventListener('keydown', handleDocumentKeydown);
 ui.filters.addEventListener('click', handleFilterClick);
 ui.search.addEventListener('input', handleSearch);
 ui.reset.addEventListener('click', resetFilters);
+ui.more.addEventListener('click', showAllProjects);
 ui.lang.addEventListener('click', () => applyLanguage(state.lang === 'ru' ? 'en' : 'ru', true));
 ui.menu.addEventListener('click', toggleMenu);
 ui.nav.addEventListener('click', closeMenu);
@@ -589,15 +620,13 @@ ui.copy.addEventListener('click', copyCaseLink);
 ui.previous.addEventListener('click', () => moveProject(-1));
 ui.next.addEventListener('click', () => moveProject(1));
 ui.select.addEventListener('change', () => selectProject(ui.select.value, { autoplay: Boolean(state.frame) }));
-ui.showreelToggle.addEventListener('click', toggleShowreel);
+ui.previewToggles.forEach(button => button.addEventListener('click', toggleShowreel));
 window.addEventListener('popstate', handleRoute);
 document.addEventListener('visibilitychange', syncShowreelPlayback);
 motionPreference.addEventListener('change', handleMotionPreference);
 
 const demoObserver = new ResizeObserver(fitDemo);
 demoObserver.observe(ui.stage);
-const heroObserver = new IntersectionObserver(handleHeroVisibility, { threshold: 0.1 });
-heroObserver.observe(document.getElementById('hero'));
 renderShowreel();
 ui.clients.innerHTML = clients.map(client => '<li>' + escapeHtml(client) + '</li>').join('');
 const showreelObserver = new IntersectionObserver(handleShowreelVisibility, { threshold: 0.25 });

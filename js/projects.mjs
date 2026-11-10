@@ -7,7 +7,10 @@ export const categories = {
   strategy: { ru: 'Стратегия', en: 'Strategy' }
 };
 
-export const clients = ['AZUR Games', 'Melsoft Games', 'VIZOR Games', 'Beresnev Games'];
+export const clients = [
+  'AZUR Games', 'Melsoft Games', 'VIZOR Games', 'Beresnev Games',
+  'Appsulove', 'Glera Games', 'Highcore Games', 'Kefir', 'Playkot'
+];
 
 const catalog = [
   {

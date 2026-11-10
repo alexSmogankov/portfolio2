@@ -63,8 +63,8 @@ def draw_page_frame(pdf, lang, page_number, total_pages, count, clients):
     paragraph(pdf, 'PLAYABLE ADS DEVELOPER', 43, HEIGHT - 58, 350, 8.5, HexColor('#7de8dc'), True, 20)
     facts = f'{count} демо / 2D + 3D / сцены, анимация, подбор звуков / PixiJS + Three.js + Blender' if lang == 'ru' else f'{count} demos / 2D + 3D / scenes, animation, sound selection / PixiJS + Three.js + Blender'
     paragraph(pdf, facts, 43, HEIGHT - 77, WIDTH - 85, 8, HexColor('#b8c4c5'), False, 20)
-    client_label = 'Заказчики: ' if lang == 'ru' else 'Clients: '
-    paragraph(pdf, client_label + ' / '.join(clients), 42, 85, WIDTH - 84, 7.5, MUTED, False, 16)
+    client_label = 'Сотрудничал с: ' if lang == 'ru' else 'Worked with: '
+    paragraph(pdf, client_label + ' / '.join(clients), 42, 96, WIDTH - 84, 7.5, MUTED, False, 26)
     pdf.setStrokeColor(LINE)
     pdf.line(42, 64, WIDTH - 42, 64)
     pdf.setFont('Portfolio', 8)
