@@ -1,4 +1,5 @@
 import { projects, categories, clients, findProject, filterProjects, readRoute, buildProjectUrl, pickShowreelProjects } from './projects.mjs';
+import { startAnalytics, trackPortfolioEvent } from './analytics.mjs';
 
 const ui = {
   grid: document.getElementById('projectsGrid'),
@@ -236,7 +237,7 @@ function applyLanguage(lang, updateUrl = false) {
   state.lang = lang === 'en' ? 'en' : 'ru';
   document.documentElement.lang = state.lang;
   document.title = t('Алексей Сможанков — Playable Ads Developer', 'Alexey Smozhankov — Playable Ads Developer');
-  document.querySelector('meta[name="description"]').content = t('Алексей Сможанков — разработчик 2D и 3D playable ads. PixiJS, Three.js, Blender: игровые механики, сцены, анимация и звук. 21 демо для 16 игр и подробные кейсы.', 'Alexey Smozhankov — 2D and 3D Playable Ads Developer. PixiJS, Three.js, Blender: game mechanics, scenes, animation and sound. 21 demos for 16 games and detailed case studies.');
+  document.querySelector('meta[name="description"]').content = t('Алексей Сможанков — разработчик 2D и 3D playable ads. PixiJS, Three.js, Blender: игровые механики, сцены, анимация и звук. 22 демо для 17 игр и подробные кейсы.', 'Alexey Smozhankov — 2D and 3D Playable Ads Developer. PixiJS, Three.js, Blender: game mechanics, scenes, animation and sound. 22 demos for 17 games and detailed case studies.');
   document.querySelectorAll('[data-ru]').forEach(element => { element.textContent = element.dataset[state.lang]; });
   document.querySelectorAll('[data-label-ru]').forEach(element => { element.setAttribute('aria-label', state.lang === 'ru' ? element.dataset.labelRu : element.dataset.labelEn); });
   document.querySelectorAll('[data-placeholder-ru]').forEach(element => { element.placeholder = state.lang === 'ru' ? element.dataset.placeholderRu : element.dataset.placeholderEn; });
@@ -287,6 +288,7 @@ function selectProject(id, { autoplay = false, updateHistory = true } = {}) {
   fitDemo();
   syncShowreelPlayback();
   if (autoplay) startDemo();
+  trackPortfolioEvent('case_open', { project: project.id, language: state.lang });
   if (window.matchMedia('(max-width: 640px)').matches) showCaseSection(autoplay ? 'demo' : 'details', false);
   else ui.layout.scrollTop = 0;
 }
@@ -347,6 +349,7 @@ function startDemo() {
   ui.restart.disabled = false;
   ui.stop.disabled = false;
   ui.viewport.append(frame);
+  trackPortfolioEvent('demo_start', { project: state.selected.id, language: state.lang });
   state.loadTimer = window.setTimeout(handleFrameTimeout, 25000);
   renderDemoStatus();
 }
@@ -628,6 +631,7 @@ motionPreference.addEventListener('change', handleMotionPreference);
 const demoObserver = new ResizeObserver(fitDemo);
 demoObserver.observe(ui.stage);
 renderShowreel();
+startAnalytics();
 ui.clients.innerHTML = clients.map(client => '<li>' + escapeHtml(client) + '</li>').join('');
 const showreelObserver = new IntersectionObserver(handleShowreelVisibility, { threshold: 0.25 });
 videos.forEach(video => showreelObserver.observe(video));

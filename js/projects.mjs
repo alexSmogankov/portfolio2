@@ -14,6 +14,11 @@ export const clients = [
 
 const catalog = [
   {
+    id: 'pixel-devour', folder: 'PD', title: 'Pixel Devour', category: 'puzzle', format: '2D',
+    ru: { variant: 'Поглощение пикселей', summary: 'Разбор пиксельной картинки по цветам: выбор блоков и поглощение пикселей через портал.', challenge: 'Связать выбор цвета с изменением картинки и сделать ограниченные места для блоков понятными с первого хода.', implementation: 'Выбор цветных блоков, очередь из пяти ячеек, счётчики пикселей и анимированное поглощение через портал.', interaction: 'Нажмите на цветной блок под картинкой, чтобы отправить его в очередь. Следите, как пиксели соответствующего цвета исчезают с поля.' },
+    en: { variant: 'Devour the pixels', summary: 'Clear pixel art by colour: select blocks and absorb matching pixels through a portal.', challenge: 'Connect colour selection to changes in the picture and make limited block slots clear from the first move.', implementation: 'Colour block selection, a five-slot queue, pixel counters and animated absorption through a portal.', interaction: 'Tap a coloured block below the picture to add it to the queue. Watch matching pixels disappear from the board.' }
+  },
+  {
     id: 'railroad-020', folder: 'RRE_play020', title: 'Railroad Empire', category: 'simulation', format: '2D / 3D', featured: true,
     ru: {
       variant: 'Ресурсы и маршруты',

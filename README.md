@@ -18,11 +18,11 @@ Open `http://127.0.0.1:8765`. Set `PORT` to select another local port.
 - `assets/decor/playground.webp` is a decorative environment, separate from the actual game captures. Its generation prompt and provenance are recorded in `assets/decor/README.md`.
 - `assets/*/index.html` are the supplied, unmodified game exports. Folder names are intentionally preserved.
 - `index.html`, `css/style.css` and `js/main.js` own the portfolio interface.
-- `assets/portfolio/` contains the two downloadable PDF editions. Each starts with three full-page case studies, followed by the complete 21-project catalogue.
+- `assets/portfolio/` contains the two downloadable PDF editions. Each starts with three full-page case studies, followed by the complete 22-project catalogue.
 
 Every supplied playable has its own card, including alternate scenarios for the same game. Cases use `?project=<id>&lang=ru#case` or `lang=en`; these links open an overview without automatically loading the game. Play creates one iframe. Stop, switching projects and closing the dialog unload the previous iframe. Rotation changes the embedded viewport without restarting the game.
 
-The initial collection shows eight projects. The reveal control opens all 21 and moves keyboard focus to the first newly revealed project. Genre filters and search always operate on the complete catalogue. Resetting an empty result shows every project. The expanded state survives language changes until the page is reloaded.
+The initial collection shows eight projects. The reveal control opens all 22 and moves keyboard focus to the first newly revealed project. Genre filters and search always operate on the complete catalogue. Resetting an empty result shows every project. The expanded state survives language changes until the page is reloaded.
 
 ## Presentation references
 
@@ -48,3 +48,27 @@ Requires Python 3 with ReportLab and Node.js. The exporter reads the same catalo
 ## Static hosting
 
 Serve this directory as static files with `.mjs` mapped to JavaScript. Keep the relative asset structure. No application server is required for deployment.
+
+## Visitor analytics
+
+Analytics is prepared for Umami and **disabled until configured**. No account or production data collection was created as part of this change.
+
+Questions the instrumentation answers:
+
+- Where do visitors arrive from, and which countries/devices appear in the Umami dashboard?
+- Which projects get case opens and demo launches?
+- How often do visitors click the PDF or a contact channel?
+
+To activate:
+
+1. Add the published portfolio domain to your Umami account. Copy the Website ID and script URL from its tracking code. Use the free Hobby plan if suitable; no paid plan is required by this integration.
+2. Set `websiteId`, `scriptUrl` and the exact production hostname(s) in `js/analytics-config.mjs`. For GitHub Pages, use the hostname without `https://` or the repository path. The Website ID is public; never add an API key or account credentials.
+3. Publish the changed files through the existing hosting workflow. Open the production site, then check Umami for one pageview, `case_open`, `demo_start`, `pdf_download_click` and `contact_click`.
+
+`demo_start` counts iframe launch attempts, including restarts, rather than completed games or successful loads. PDF and contact events count clicks rather than completed downloads or messages. Pageviews are sent once per document load: case navigation and language changes do not inflate them. Event properties use catalogue project IDs, the UI language, or a contact channel (`email`, `telegram`, `linkedin`).
+
+The tracker sends the landing path and only `utm_source`, `utm_medium`, `utm_campaign` values consisting of letters, numbers, underscores and hyphens (up to 80 characters). Use generic campaign labels such as `linkedin`, `profile`, `portfolio`; do not put personal names or email addresses in campaign labels. Referrers retain only their origin. Search input, arbitrary URL parameters, fragments, contact addresses and visitor identity are not sent by this integration. No replay, heatmap or user-identification feature is enabled. Local HTTP preview, non-allowlisted domains, Do Not Track and Global Privacy Control skip loading the tracker entirely. Blocked analytics never prevents the portfolio from working.
+
+Statistics are viewed privately in your Umami account, not exposed on the portfolio. Geography and attribution may be incomplete because of VPNs, blockers and missing referrers. Historical visits cannot be reconstructed.
+
+References: [collecting data](https://docs.umami.is/docs/collect-data), [tracker functions](https://docs.umami.is/docs/tracker-functions), [tracker configuration](https://docs.umami.is/docs/tracker-configuration).
